@@ -1,0 +1,42 @@
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.exe
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.pdb
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\bin\Debug\SoftwareFoundations.exe
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\bin\Debug\SoftwareFoundations.pdb
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\App.g.cs
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations_MarkupCompile.cache
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.g.resources
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.Properties.Resources.resources
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\Client.csproj.GenerateResource.Cache
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\bin\Debug\Server.exe
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\bin\Debug\Server.pdb
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\MainWindow.baml
+C:\Users\andrius\Documents\JHU\SoftwareFoundations\SoftwareFoundations\obj\Debug\MainWindow.g.cs
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.exe
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.pdb
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\bin\Debug\SoftwareFoundations.exe
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\bin\Debug\SoftwareFoundations.pdb
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\bin\Debug\Server.exe
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\bin\Debug\Server.pdb
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\MainWindow.baml
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\MainWindow.g.cs
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\App.g.cs
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations_MarkupCompile.cache
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.g.resources
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.Properties.Resources.resources
+C:\Users\Andrius\Dropbox\SoftwareFoundations\SoftwareFoundations\obj\Debug\Client.csproj.GenerateResource.Cache
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\bin\Debug\SoftwareFoundations.exe
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\bin\Debug\SoftwareFoundations.pdb
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\bin\Debug\Server.exe
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\bin\Debug\Server.pdb
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\MainWindow.baml
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\MainWindow.g.cs
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\App.g.cs
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations_MarkupCompile.cache
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.g.resources
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.Properties.Resources.resources
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\Client.csproj.GenerateResource.Cache
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.exe
+C:\Users\Andrius\Documents\JHU\Foundations of Software Engineering\code\SoftwareFoundations\SoftwareFoundations\obj\Debug\SoftwareFoundations.pdb

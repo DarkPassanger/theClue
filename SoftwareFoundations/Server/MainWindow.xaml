@@ -1,0 +1,11 @@
+﻿<Window x:Class="Server.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525" Closing="ServerClosingEvent">
+    <Grid Background="#FFA2B5DE">
+        <TextBox x:Name="tbServerStatus" HorizontalAlignment="Left" Height="243" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="497" Background="#FFEAEAEE" Foreground="#FF050A3C" FontWeight="Bold" FontStyle="Italic" FontSize="16"/>
+        <Button x:Name="buttonStartServer" Content="Start Server" HorizontalAlignment="Left" Margin="74,270,0,0" VerticalAlignment="Top" Width="143" Click="buttonStartServer_Click" Height="39"/>
+        <Button x:Name="buttonStopServer" Content="Stop Server" HorizontalAlignment="Left" Margin="311,270,0,0" VerticalAlignment="Top" Width="143" Click="buttonStopServer_Click" Height="39"/>
+
+    </Grid>
+</Window>
