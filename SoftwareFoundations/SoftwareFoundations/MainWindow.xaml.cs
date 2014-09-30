@@ -107,21 +107,24 @@ namespace SoftwareFoundations
             int bytesRead;
             while (true)
             {
-                bytesRead =
-                   client.GetStream().Read(buffer, 0, 4096);;
+                Monitor.Enter(this);
+                var getClientStream = client.GetStream();
+                bytesRead = getClientStream.Read(buffer, 0, 4096); ;
+                Monitor.Exit(this);
                 try
                 {
                     string receivedStr = encoder.GetString(buffer, 0, bytesRead);
 
-                    DataContractJsonSerializer jsonSer = new DataContractJsonSerializer(typeof(CommDataObject));
+                    DataContractJsonSerializer jsonSer = new DataContractJsonSerializer(typeof (CommDataObject));
                     MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(receivedStr));
-                    receivedFromServer = (CommDataObject)jsonSer.ReadObject(stream);
-                    
+                    receivedFromServer = (CommDataObject) jsonSer.ReadObject(stream);
+
                     ///////////////////////message out to player GUI/////////////////////////////////
-                    string temp = "X: " + receivedFromServer.playerPositionX + " Y: " + receivedFromServer.playerPositionY +
+                    string temp = "X: " + receivedFromServer.playerPositionX + " Y: " +
+                                  receivedFromServer.playerPositionY +
                                   " ID: " + receivedFromServer.playerID + "\n";
-                    Dispatcher.Invoke((Action)(() => InfoTextBox.AppendText(temp)));
-                    Dispatcher.Invoke((Action)(() => InfoTextBox.ScrollToEnd()));
+                    Dispatcher.Invoke((Action) (() => InfoTextBox.AppendText(temp)));
+                    Dispatcher.Invoke((Action) (() => InfoTextBox.ScrollToEnd()));
                     ////////////////////////////////////////////////////////////////////////////////
 
                     ///////////////////////Current client/////////////////////////////////////
@@ -133,7 +136,7 @@ namespace SoftwareFoundations
                         currentPlayer = receivedFromServer;
                     }
                     //////////////////////////////////////////////////////////////////////////
-                    
+
                     //////////////////////////////////////////////////////////////////////////
                     //make a local list of all players
                     /////////////////////////////////////////////////////////////////////////
@@ -142,15 +145,16 @@ namespace SoftwareFoundations
                         playerListClient.Add(receivedFromServer.playerID, receivedFromServer);
                     }
                     /////////////////////////////////////////////////////////////////////////
+                    
 
                     playerListClient[receivedFromServer.playerID] = receivedFromServer;
 
-                    Dispatcher.Invoke((Action)(() => updatePlayersList(receivedFromServer.playerID)));
+                    Dispatcher.Invoke((Action) (() => updatePlayersList(receivedFromServer.playerID)));
 
                     //this initializes player position
-                    Dispatcher.Invoke((Action)(() => playerPosition(receivedFromServer)));
+                    Dispatcher.Invoke((Action) (() => playerPosition(receivedFromServer)));
                     commCount++;
- 
+
                     //need to initialize other players here...
                     if (receivedFromServer.numOfPlayers > 1)
                     {
@@ -158,7 +162,7 @@ namespace SoftwareFoundations
                         //MainCanvas.UpdateLayout();
                         commCount = 0;
                     }
-       
+
                 }
                 catch (Exception exception)
                 {
@@ -754,14 +758,6 @@ namespace SoftwareFoundations
                 Canvas.SetLeft(player1, newPosition.xPosition - (float)(player1.ActualWidth / 2));
                 newPosition.occupied = true;
             }
-            else
-            {
-                Canvas.SetTop(player1, newPosition.yPosition - (float)(player1.ActualHeight / 2));
-                Canvas.SetLeft(player1, newPosition.xPosition - (float)(player1.ActualWidth / 2));
-                newPosition.occupied = true;
-
-                temp = newPosition;
-            }
         }
 
         private void movePlayer(PositionCoordinates newPosition, Canvas playerCanvas)
@@ -780,14 +776,6 @@ namespace SoftwareFoundations
                 Canvas.SetTop(playerCanvas, newPosition.yPosition - (float)(playerCanvas.ActualHeight / 2));
                 Canvas.SetLeft(playerCanvas, newPosition.xPosition - (float)(playerCanvas.ActualWidth / 2));
                 newPosition.occupied = true;
-            }
-            else
-            {
-                Canvas.SetTop(playerCanvas, newPosition.yPosition - (float)(playerCanvas.ActualHeight / 2));
-                Canvas.SetLeft(playerCanvas, newPosition.xPosition - (float)(playerCanvas.ActualWidth / 2));
-                newPosition.occupied = true;
-
-                temp = newPosition;
             }
         }
         ////////////////////////////////////////////////////////////////////

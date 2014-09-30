@@ -171,38 +171,41 @@ namespace Server
                         //go througg all the clients
                         foreach (KeyValuePair<int, NetworkStream> playerClient in tcpClientList)
                         {
-                            Debug.Print("--------------------------------------");
 
                             foreach (KeyValuePair<int, CommDataObject> player in playerList)
                             {
 
+                                //we'll determine here if player has entered the room and send that out
+
+                                if (player.Value.playerPositionX == 0 && player.Value.playerPositionY == 0)
+                                {
+                                    player.Value.enteredRoom = true;
+                                }
+                                else
+                                {
+                                    player.Value.enteredRoom = false;
+                                }
+
+                                //temporary fix --- BAD solution
+                                Thread.Sleep(5);
+
                                 MemoryStream stream = new MemoryStream();
-                                DataContractJsonSerializer jsonSer =
-                                    new DataContractJsonSerializer(typeof (CommDataObject));
+                                DataContractJsonSerializer jsonSer = new DataContractJsonSerializer(typeof (CommDataObject));
                                 jsonSer.WriteObject(stream, player.Value);
                                 stream.Position = 0;
                                 StreamReader sr = new StreamReader(stream);
                                 var json = sr.ReadToEnd();
 
-                                ///////////////////////////////////////////////////
-                                Debug.Print("JSON: " + json.ToString());
-                                serverMessage = new Message();
-                                serverMessage.statusMessage = "\nJSON:" + json.ToString() + "\n";
-                                outMessage(this, serverMessage);
-                                ///////////////////////////////////////////////////
-
 
                                 byte[] buffer = encoder.GetBytes(json);
-
                                 playerClient.Value.Write(buffer, 0, buffer.Length);
                                 playerClient.Value.Flush();
+                                
 
                                 Debug.Print("from server... " + playerClient.Key + " X: " + player.Value.playerPositionX +
-                                            " Y: " + player.Value.playerPositionY);
-
+                                           " Y: " + player.Value.playerPositionY);
                             }
 
-                            Debug.Print("--------------------------------------");
                         }
                     }
                 }

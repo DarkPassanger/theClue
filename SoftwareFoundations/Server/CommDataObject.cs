@@ -26,22 +26,6 @@ namespace Server
             get { return _playerPositionY; }
         }
 
-        private int _clientHandle;
-        [DataMember]
-        public int clientHandle
-        {
-            set { _clientHandle = value; }
-            get { return _clientHandle; }
-        }
-
-        private bool _initialPosition;
-        [DataMember]
-        public bool initialPosition
-        {
-            set { _initialPosition = value; }
-            get { return _initialPosition; }
-        }
-
         //////////////////////////////
         private bool _initialize;
         [DataMember]
@@ -68,5 +52,12 @@ namespace Server
             get { return _playerID; }
         }
 
+        private bool _enteredRoom;
+        [DataMember]
+        public bool enteredRoom
+        {
+            set { _enteredRoom = value; }
+            get { return _enteredRoom; }
+        }
     }
 }
