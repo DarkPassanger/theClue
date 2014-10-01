@@ -186,6 +186,15 @@ namespace Server
                                     player.Value.enteredRoom = false;
                                 }
 
+                                if(player.Value.playerPositionX == 0 && player.Value.playerPositionY == 2)
+                                {
+                                    player.Value.enteredRoom = true;
+                                }
+                                else
+                                {
+                                    player.Value.enteredRoom = false;
+                                }
+
                                 //temporary fix --- BAD solution
                                 Thread.Sleep(5);
 

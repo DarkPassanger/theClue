@@ -163,6 +163,14 @@ namespace SoftwareFoundations
                         commCount = 0;
                     }
 
+                    /////////////////////////////////////////////////////////////////////////
+                    if (receivedFromServer.enteredRoom)
+                    {
+                        MessageBox.Show("Player ID: " + receivedFromServer.playerID + " entered room");
+                    }
+                    ////////////////////////////////////////////////////////////////////////////
+
+
                 }
                 catch (Exception exception)
                 {
