@@ -10,6 +10,15 @@ namespace Server
     [DataContract]
     public class CommDataObject
     {
+        private GamePlayer _gamePlayer;
+        [DataMember]
+        public GamePlayer gamePlayer
+        {
+            set { _gamePlayer = value; }
+            get { return _gamePlayer; }
+        }
+
+
         private int _playerPositionX;
         [DataMember]
         public int playerPositionX

@@ -23,6 +23,7 @@ namespace SoftwareFoundations
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const int maxPlayers = 6;
 
         TcpClient client = new TcpClient();
         IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000);
@@ -39,6 +40,11 @@ namespace SoftwareFoundations
 
         public static Dictionary<int , Canvas> playerList = new Dictionary<int, Canvas>();
 
+        public List<GamePlayer> gamePlayerList = new List<GamePlayer>();
+
+        public List<Canvas> PlayerCanvases;
+
+        //initialize all players...
 
 
         public MainWindow()
@@ -57,6 +63,22 @@ namespace SoftwareFoundations
 
             tcpListener = new TcpListener(serverEndPoint);
 
+            PlayerCanvases = new List<Canvas>();
+            PlayerCanvases.Add(player1);
+            PlayerCanvases.Add(player2);
+            PlayerCanvases.Add(player3);
+            PlayerCanvases.Add(player4);
+            PlayerCanvases.Add(player5);
+            PlayerCanvases.Add(player6);
+
+        }
+
+        public static T DeserializeJSon<T>(string jsonString)
+        {
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
+            MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
+            T obj = (T)ser.ReadObject(stream);
+            return obj;
         }
 
         private void connectToServerButton_Click(object sender, RoutedEventArgs e)
@@ -85,7 +107,7 @@ namespace SoftwareFoundations
             if (client.Connected && server)
             {
                 connectToServerButton.IsEnabled = false;
-                InfoTextBox.AppendText("Connected: " + serverEndPoint.Address.ToString());
+                InfoTextBox.AppendText("Connected: " + serverEndPoint.Address);
             }
             else if (server)
             {
@@ -95,7 +117,6 @@ namespace SoftwareFoundations
             {
                 //do nothing
             }
-
             connectToServerButton.IsEnabled = true;
 
         }
@@ -119,10 +140,13 @@ namespace SoftwareFoundations
                     MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(receivedStr));
                     receivedFromServer = (CommDataObject) jsonSer.ReadObject(stream);
 
+                    GamePlayer gamePlayer= receivedFromServer.gamePlayer;
+
+
                     ///////////////////////message out to player GUI/////////////////////////////////
-                    string temp = "X: " + receivedFromServer.playerPositionX + " Y: " +
-                                  receivedFromServer.playerPositionY +
-                                  " ID: " + receivedFromServer.playerID + "\n";
+                    string temp = "X: " + gamePlayer.Coordinates.xPos + " Y: " +
+                                  gamePlayer.Coordinates.yPos +
+                                  " ID: " + gamePlayer.PlayerID+ "\n";
                     Dispatcher.Invoke((Action) (() => InfoTextBox.AppendText(temp)));
                     Dispatcher.Invoke((Action) (() => InfoTextBox.ScrollToEnd()));
                     ////////////////////////////////////////////////////////////////////////////////
@@ -130,36 +154,49 @@ namespace SoftwareFoundations
                     ///////////////////////Current client/////////////////////////////////////
                     //get current client ID
                     /////////////////////////////////////////////////////////////////////////
-                    if (receivedFromServer.initialize && currentPlayerID == 0)
-                    {
-                        currentPlayerID = receivedFromServer.playerID;
-                        currentPlayer = receivedFromServer;
-                    }
+//                    if (receivedFromServer.initialize && currentPlayerID == 0)
+//                    {
+//                        currentPlayerID = receivedFromServer.playerID;
+//                        currentPlayer = receivedFromServer;
+//                    }
                     //////////////////////////////////////////////////////////////////////////
+
+                    //add players to list and assign canvas to each
+                    if (!gamePlayerList.Contains(gamePlayer))
+                    {
+                        gamePlayerList.Add(gamePlayer);
+
+                    }
 
                     //////////////////////////////////////////////////////////////////////////
                     //make a local list of all players
                     /////////////////////////////////////////////////////////////////////////
-                    if (!playerListClient.ContainsKey(receivedFromServer.playerID))
-                    {
-                        playerListClient.Add(receivedFromServer.playerID, receivedFromServer);
-                    }
+//                    if (!playerListClient.ContainsKey(receivedFromServer.playerID))
+//                    {
+//                        playerListClient.Add(receivedFromServer.playerID, receivedFromServer);
+//                    }
                     /////////////////////////////////////////////////////////////////////////
                     
 
-                    playerListClient[receivedFromServer.playerID] = receivedFromServer;
+//                    playerListClient[receivedFromServer.playerID] = receivedFromServer;
+//
+//                    Dispatcher.Invoke((Action) (() => updatePlayersList(receivedFromServer.playerID)));
+//
+//                    //this initializes player position
+//                    Dispatcher.Invoke((Action) (() => playerPosition(receivedFromServer)));
+//                    commCount++;
 
-                    Dispatcher.Invoke((Action) (() => updatePlayersList(receivedFromServer.playerID)));
-
-                    //this initializes player position
-                    Dispatcher.Invoke((Action) (() => playerPosition(receivedFromServer)));
-                    commCount++;
-
-                    //need to initialize other players here...
-                    if (receivedFromServer.numOfPlayers > 1)
+                    if (gamePlayerList.Count == maxPlayers)
                     {
-                        Dispatcher.Invoke((Action) (() => UpdateAllPlayersPositions()));
-                        //MainCanvas.UpdateLayout();
+                        int count = 0;
+                        //once we have all the players, go through and assign canvas to each
+                        foreach (GamePlayer player in gamePlayerList)
+                        {
+                            player.PlayerCanvas = PlayerCanvases[count];
+                            count++;
+                        }
+
+                        Dispatcher.Invoke((Action) (UpdateAllPlayersPositions));
                         commCount = 0;
                     }
 
@@ -182,6 +219,7 @@ namespace SoftwareFoundations
 
         /// <summary>
         /// this will associate each player id with canvas on the board
+        /// this may not be needed if we pre-assign player to canvas before the game
         /// </summary>
         public void updatePlayersList(int playerID)
         {
@@ -218,22 +256,28 @@ namespace SoftwareFoundations
         public void UpdateAllPlayersPositions()
         {
 
-            foreach (KeyValuePair<int, CommDataObject> _player in playerListClient)
+            foreach (var gamePlayer in gamePlayerList)
             {
-
-                if (_player.Key == currentPlayerID)
-                {
-                    movePlayer(currentPlayerPosition);
-                }
-                else
-                {
-                    Canvas currentPlayerCanvas = playerList[_player.Key];
-                    PositionCoordinates newPositionCoordinates = playerPosition(_player.Value, true);
-                    movePlayer(newPositionCoordinates, currentPlayerCanvas);
-                }
-
-                MainCanvas.InvalidateVisual();
+                PositionCoordinates newPositionCoordinates = playerPosition(gamePlayer, true);
+                movePlayer(newPositionCoordinates, gamePlayer.PlayerCanvas);
             }
+
+//            foreach (KeyValuePair<int, CommDataObject> _player in playerListClient)
+//            {
+//
+//                if (_player.Key == currentPlayerID)
+//                {
+//                    movePlayer(currentPlayerPosition);
+//                }
+//                else
+//                {
+//                    Canvas currentPlayerCanvas = playerList[_player.Key];
+//                    PositionCoordinates newPositionCoordinates = playerPosition(_player.Value, true);
+//                    movePlayer(newPositionCoordinates, currentPlayerCanvas);
+//                }
+//
+//                MainCanvas.InvalidateVisual();
+//            }
         }
 
         #region Coordinates calculations
@@ -473,129 +517,129 @@ namespace SoftwareFoundations
 
         #region player position/coordinates translation
 
-        private void playerPosition(CommDataObject receivedDataObject)
+        private void playerPosition(GamePlayer receivedDataObject)
         {
-            if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 0)
+            if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_0_0_Coordinates();
                 movePlayer(newCorCoordinates);
-                InfoTextBox.AppendText("initialize player position... 0,0 \n");
+                InfoTextBox.AppendText("player position... 0,0 \n");
             }
-            else if (receivedDataObject.playerPositionX == 1 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 1 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_1_0_Coordinates();
                 movePlayer(newCorCoordinates);
-                InfoTextBox.AppendText("initialize player position... 1,0 \n");
+                InfoTextBox.AppendText("player position... 1,0 \n");
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_2_0_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,0 \n");
             }
-            else if (receivedDataObject.playerPositionX == 3 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 3 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_3_0_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 3,0 \n");
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_4_0_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 4,0 \n");
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 1)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 1)
             {
                 PositionCoordinates newCorCoordinates = get_0_1_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 0,1 \n");
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 1)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 1)
             {
                 PositionCoordinates newCorCoordinates = get_2_1_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,1 \n");
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 1)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 1)
             {
                 PositionCoordinates newCorCoordinates = get_4_1_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,1 \n");
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_0_2_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,0 \n");
             }
-            else if (receivedDataObject.playerPositionX == 1 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 1 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_1_2_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,0 \n");
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_2_2_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,2 \n");
             }
-            else if (receivedDataObject.playerPositionX == 3 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 3 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_3_2_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 3,2 \n");
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_4_2_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 4,2 \n");
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 3)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 3)
             {
                 PositionCoordinates newCorCoordinates = get_0_3_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 0,3 \n");
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 3)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 3)
             {
                 PositionCoordinates newCorCoordinates = get_2_3_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,3 \n");
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 3)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 3)
             {
                 PositionCoordinates newCorCoordinates = get_4_3_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 4,3 \n");
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_0_4_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 0,4 \n");
             }
-            else if (receivedDataObject.playerPositionX == 1 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 1 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_1_4_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 1,4 \n");
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_2_4_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 2,4 \n");
             }
-            else if (receivedDataObject.playerPositionX == 3 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 3 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_3_4_Coordinates();
                 movePlayer(newCorCoordinates);
                 InfoTextBox.AppendText("initialize player position... 3,4 \n");
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_4_4_Coordinates();
                 movePlayer(newCorCoordinates);
@@ -607,130 +651,130 @@ namespace SoftwareFoundations
             }
         }
 
-        private PositionCoordinates playerPosition(CommDataObject receivedDataObject, bool withReturn)
+        private PositionCoordinates playerPosition(GamePlayer receivedDataObject, bool withReturn)
         {
-            if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 0)
+            if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_0_0_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 0,0 \n");
                 return newCorCoordinates;
 
             }
-            else if (receivedDataObject.playerPositionX == 1 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 1 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_1_0_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 1,0 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_2_0_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,0 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 3 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 3 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_3_0_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 3,0 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 0)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 0)
             {
                 PositionCoordinates newCorCoordinates = get_4_0_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 4,0 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 1)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 1)
             {
                 PositionCoordinates newCorCoordinates = get_0_1_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 0,1 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 1)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 1)
             {
                 PositionCoordinates newCorCoordinates = get_2_1_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,1 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 1)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 1)
             {
                 PositionCoordinates newCorCoordinates = get_4_1_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,1 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_0_2_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,0 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 1 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 1 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_1_2_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,0 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_2_2_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,2 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 3 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 3 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_3_2_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 3,2 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 2)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 2)
             {
                 PositionCoordinates newCorCoordinates = get_4_2_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 4,2 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 3)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 3)
             {
                 PositionCoordinates newCorCoordinates = get_0_3_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 0,3 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 3)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 3)
             {
                 PositionCoordinates newCorCoordinates = get_2_3_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,3 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 3)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 3)
             {
                 PositionCoordinates newCorCoordinates = get_4_3_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 4,3 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 0 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 0 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_0_4_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 0,4 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 1 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 1 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_1_4_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 1,4 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 2 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 2 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_2_4_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 2,4 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 3 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 3 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_3_4_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 3,4 \n");
                 return newCorCoordinates;
             }
-            else if (receivedDataObject.playerPositionX == 4 && receivedDataObject.playerPositionY == 4)
+            else if (receivedDataObject.Coordinates.xPos == 4 && receivedDataObject.Coordinates.yPos == 4)
             {
                 PositionCoordinates newCorCoordinates = get_4_4_Coordinates();
                 InfoTextBox.AppendText("initialize player position... 4,4 \n");
